@@ -77,7 +77,7 @@ const articlesQuery = `{
         name
         avatar {
           image: childImageSharp {
-            fluid(maxWidth: 50, quality: 100) {
+            fluid(maxWidth: 164, quality: 100) {
               ${GatsbyImageSharpFluid_withWebp}
             }
           }
@@ -135,7 +135,7 @@ module.exports = async ({ actions: { createPage }, graphql }, themeOptions) => {
 
   log("Creating", "author pages");
   authors.forEach(({ node: author }) => {
-    const hyphenatedAuthorName = author.name.trim().replace(/\s+/g, "-");
+    const hyphenatedAuthorName = author.name.toLowerCase().trim().replace(/\s+/g, "-");
     const filteredArticles = articles.filter(({ node: article }) => {
       return article.author === author.name;
     });
@@ -152,6 +152,7 @@ module.exports = async ({ actions: { createPage }, graphql }, themeOptions) => {
         basePath: `/authors/${hyphenatedAuthorName}`,
         skip: pageLength,
         limit: pageLength,
+        author: author
       },
     });
   });
