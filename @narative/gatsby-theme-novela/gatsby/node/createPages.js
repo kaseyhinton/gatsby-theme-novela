@@ -11,6 +11,7 @@ const templatesDir = path.resolve(__dirname, "../../src/templates");
 const templates = {
   articles: path.resolve(templatesDir, "articles.template.tsx"),
   article: path.resolve(templatesDir, "article.template.tsx"),
+  author: path.resolve(templatesDir, "author.template.tsx")
 };
 
 // How many posts per page? This is hardcoded for now.
@@ -131,6 +132,29 @@ module.exports = async ({ actions: { createPage }, graphql }, themeOptions) => {
       https://github.com/narative/gatsby-theme-novela-example
     `);
   }
+
+  log("Creating", "author pages");
+  authors.forEach(({ node: author }) => {
+    const hyphenatedAuthorName = author.name.trim().replace(/\s+/g, "-");
+    const filteredArticles = articles.filter(({ node: article }) => {
+      return article.author === author.name;
+    });
+
+    log(`filtered articles ${filteredArticles.length}`);
+    createPaginatedPages({
+      edges: filteredArticles,
+      pathPrefix: `/authors/${hyphenatedAuthorName}`,
+      createPage,
+      pageLength,
+      pageTemplate: templates.author,
+      buildPath: buildPaginatedPath,
+      context: {
+        basePath: `/authors/${hyphenatedAuthorName}`,
+        skip: pageLength,
+        limit: pageLength,
+      },
+    });
+  });
 
   log("Creating", "articles page");
   createPaginatedPages({
